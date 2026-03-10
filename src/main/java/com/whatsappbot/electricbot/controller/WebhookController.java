@@ -3,7 +3,7 @@ package com.whatsappbot.electricbot.controller;
 import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.whatsappbot.electricbot.service.BotService;
 import com.whatsappbot.electricbot.service.ClienteService;
 
 @RestController
@@ -11,9 +11,11 @@ import com.whatsappbot.electricbot.service.ClienteService;
 public class WebhookController {
 
     private final ClienteService clienteService;
+    private final BotService botService;
 
-    public WebhookController(ClienteService clienteService) {
+    public WebhookController(ClienteService clienteService, BotService botService) {
         this.clienteService = clienteService;
+        this.botService = botService;
     }
 
     @GetMapping
@@ -52,6 +54,11 @@ public String receiveMessage(@RequestBody String payload) {
         System.out.println("Mensaje: " + mensaje);
 
         clienteService.guardarConsulta(telefono, mensaje);
+
+        String respuesta = botService.generarRespuesta(mensaje);
+
+        System.out.println("Respuesta del bot:");
+        System.out.println(respuesta);
 
     } catch (Exception e) {
         System.out.println("Error procesando mensaje");
