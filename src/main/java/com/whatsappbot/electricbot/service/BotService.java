@@ -2,29 +2,57 @@ package com.whatsappbot.electricbot.service;
 
 import org.springframework.stereotype.Service;
 
+import com.whatsappbot.electricbot.model.Cliente;
+
 @Service
 public class BotService {
 
-    public String generarRespuesta(String mensaje) {
+    private final ClienteService clienteService;
 
-        mensaje = mensaje.toLowerCase();
+    public BotService(ClienteService clienteService) {
+        this.clienteService = clienteService;
+    }
 
-        if(mensaje.contains("hola")) {
-            return "Hola 👋 gracias por contactarte con ElectricBot.\n¿En qué podemos ayudarte?\n\n1️⃣ Instalación eléctrica\n2️⃣ Reparación\n3️⃣ Presupuesto";
+    public String procesarMensaje(String telefono, String mensaje) {
+
+        Cliente cliente = clienteService.buscarOCrearCliente(telefono);
+
+        String estado = cliente.getEstado();
+        String respuesta;
+
+        switch (estado) {
+
+            case "MENU":
+
+                respuesta = """
+                        Hola 👋 Soy el asistente eléctrico.
+
+                        1️⃣ Instalación eléctrica
+                        2️⃣ Reparación
+                        3️⃣ Presupuesto
+                        """;
+
+                cliente.setEstado("ESPERANDO_OPCION");
+                break;
+
+            case "ESPERANDO_OPCION":
+
+                if (mensaje.equals("1")) {
+                    respuesta = "¿La instalación es domiciliaria o comercial?";
+                    cliente.setEstado("TIPO_INSTALACION");
+                } else {
+                    respuesta = "No entendí la opción.";
+                }
+
+                break;
+
+            default:
+
+                respuesta = "No entendí el mensaje.";
         }
 
-        if(mensaje.contains("instalacion")) {
-            return "Perfecto. ¿Es una instalación eléctrica domiciliaria, comercial o industrial?";
-        }
+        clienteService.guardar(cliente);
 
-        if(mensaje.contains("reparacion")) {
-            return "Contanos qué problema eléctrico estás teniendo.";
-        }
-
-        if(mensaje.contains("presupuesto")) {
-            return "Para poder darte un presupuesto necesitamos algunos datos.\n¿Podés contarnos qué trabajo necesitás?";
-        }
-
-        return "Gracias por tu mensaje. En breve un electricista se pondrá en contacto.";
+        return respuesta;
     }
 }

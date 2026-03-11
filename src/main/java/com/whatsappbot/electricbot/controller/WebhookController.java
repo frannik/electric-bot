@@ -53,9 +53,7 @@ public String receiveMessage(@RequestBody String payload) {
         System.out.println("Telefono: " + telefono);
         System.out.println("Mensaje: " + mensaje);
 
-        clienteService.guardarConsulta(telefono, mensaje);
-
-        String respuesta = botService.generarRespuesta(mensaje);
+        String respuesta = botService.procesarMensaje(telefono, mensaje);
 
         System.out.println("Respuesta del bot:");
         System.out.println(respuesta);

@@ -2,9 +2,10 @@ package com.whatsappbot.electricbot.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.whatsappbot.electricbot.model.Cliente;
+import java.util.Optional;
 
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
-    Cliente findByTelefono(String telefono);
+    Optional<Cliente> findByTelefono(String telefono);
 
 }
